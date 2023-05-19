@@ -1,23 +1,69 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import PocketBase from 'pocketbase'
+const pb = new PocketBase('http://127.0.1:8090');
 </script>
 
 <template>
   <header>
     <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <div>
+      <label width="50px">Login    : </label><input type="email" id="login">
+      <p></p>
+      <label width="50px">Password : </label><input type="password" id="passwd">
+      <p></p>
+
+      <label width="50px">Nom: </label><input type="text" id="zone_nom">
+      <p></p>
+
+      <hr>
+      <button v-on:click="register()">Register</button>
+      <button v-on:click="login()">Login</button><p></p>
+      <button v-on:click="reset()">Reset password</button><p></p>
     </div>
   </header>
 
   <main>
-    <TheWelcome />
-  </main>
+    <!-- <TheWelcome /> -->
+  </main> 
 </template>
 
+<script>
+const pb = new PocketBase('http://192.168.1.125:8010')
+export default {
+  methods: {
+    //this method allows a new user to sign up the system. Once done, the user receives an email
+    //asking for account validation. Once the validation made the user is added to the system
+    async login() {
+        await pb.collection('users').authWithPassword(document.getElementById("login").value,
+        document.getElementById("passwd").value);
+    },
+    //this method allows the already registred user to log in the system.
+    async register() {
+      await pb.collection('users').create({
+        email: document.getElementById("login").value,
+        password: document.getElementById("passwd").value,
+        passwordConfirm: document.getElementById("passwd").value,
+        name: document.getElementById("zone_nom").value,
+      });
+    },
+    
+    async reset(){
+      await pb.admins.requestPasswordReset(document.getElementById("login").value);
+    }
+    
+  }
+}
+</script>
 <style scoped>
+
+label {
+  width:100px;
+  display: inline-block;
+}
+button {
+  width:150px;
+}
 header {
   line-height: 1.5;
 }
